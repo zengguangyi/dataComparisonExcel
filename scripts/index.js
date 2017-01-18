@@ -28,11 +28,12 @@
 // })()
 
 let app = new Vue({
-    el: '#app',
+    el: '#yi',
     data: {
         name: 'guangyi',
         file_lists: null,
-        xlxs_data: {}
+        xlxs_data: {},
+        currentRow: null
     },
     methods: {
         handleSelect: function(key, keyPath) {
@@ -49,8 +50,8 @@ let app = new Vue({
             }
         },
         /**
-        * 文件上传 解析 赋值
-        */
+         * 文件上传 解析 赋值
+         */
         fileInput: function(e) {
             console.log(e.target.files[0]);
             console.log(this.file_lists);
@@ -70,9 +71,9 @@ let app = new Vue({
                     let json_object = JSON.stringify(XL_row_object);
                     obj[sheetName] = XL_row_object;
                 });
-                    console.log(obj);
-                    that.xlxs_data = obj;
-                
+                console.log(obj);
+                that.xlxs_data = obj;
+
             }
             reader.readAsBinaryString(file);
         }
