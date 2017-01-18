@@ -1,14 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>业务数据比对</title>
-</head>
-<body>
-	<input type="file" id="file_input" />
 
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.1/xlsx.core.min.js"></script>
-	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script> -->
-	<script type="text/javascript" src="scripts/index.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>业务数据比对</title>
+    <!-- element引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-default/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <nav>
+            <el-menu theme="dark" default-active="1" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                <el-menu-item index="1">处理中心</el-menu-item>
+                <el-menu-item index="excel_in">导入</el-menu-item>
+                <el-menu-item index="excel_out">导出</el-menu-item>
+                <!-- <el-submenu index="2">
+                    <template slot="title">我的工作台</template>
+                    <el-menu-item index="2-1">选项1</el-menu-item>
+                    <el-menu-item index="2-2">选项2</el-menu-item>
+                    <el-menu-item index="2-3">选项3</el-menu-item>
+                </el-submenu>
+                <el-menu-item index="3"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item> -->
+            </el-menu>
+        </nav>
+        <input type="file" id="file_input" v-on:change="fileInput" />
+        <ul v-for="(value,key) in xlxs_data">
+        	{{key}}
+        	<li v-for="item in value">
+        		{{ item }}
+        	</li>
+        </ul>
+        <!-- <div>{{ xlxs_data }}</div> -->
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- element引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.1/xlsx.core.min.js"></script>
+    <script type="text/javascript" src="scripts/index.js"></script>
 </body>
+
 </html>
