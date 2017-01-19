@@ -25,34 +25,30 @@
             </el-menu>
         </nav>
         <input type="file" id="file_yi" v-on:change="fileInput" />
-        <section class="table-yi" v-for="(value,key,index) in xlxs_data">
-            {{ index }} : {{key}}
-            <el-table :data="value" style="width: 100%" height="250" empty-text="nothing" highlight-current-row>
-                <el-table-column prop="序号" label="序号" width="180">
-                </el-table-column>
-                <el-table-column prop="车牌号码" label="车牌号码" width="180">
-                </el-table-column>
-                <el-table-column v-if="index == 0" prop="签单日期" label="签单日期">
-                </el-table-column>
-                <el-table-column v-if="index == 0" prop="起保日期" label="起保日期">
-                </el-table-column>
-                <el-table-column v-if="index == 1" prop="终保日期" label="终保日期">
-                </el-table-column>
-                <el-table-column prop="经办人" label="经办人">
-                </el-table-column>
-                <el-table-column v-if="index == 0" prop="纯保费" label="纯保费">
-                </el-table-column>
-                <el-table-column v-if="index == 1" prop="保费" label="保费">
-                </el-table-column>
-            </el-table>
+        <section class="tabs_yi">
+            <el-tabs type="card">
+                <el-tab-pane v-for="(value,key,index) in xlxs_data" :label="key" :name="key">
+                    <el-table :data="value" style="width: 100%" empty-text="nothing" highlight-current-row>
+                        <el-table-column prop="序号" label="序号" width="180">
+                        </el-table-column>
+                        <el-table-column prop="车牌号码" label="车牌号码" width="180">
+                        </el-table-column>
+                        <el-table-column v-if="index == 0" prop="签单日期" label="签单日期">
+                        </el-table-column>
+                        <el-table-column v-if="index == 0" prop="起保日期" label="起保日期">
+                        </el-table-column>
+                        <el-table-column v-if="index == 1" prop="终保日期" label="终保日期">
+                        </el-table-column>
+                        <el-table-column prop="经办人" label="经办人">
+                        </el-table-column>
+                        <el-table-column v-if="index == 0" prop="纯保费" label="纯保费">
+                        </el-table-column>
+                        <el-table-column v-if="index == 1" prop="保费" label="保费">
+                        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+            </el-tabs>
         </section>
-        <!-- <ul v-for="(value,key) in xlxs_data">
-            {{key}}
-            <li v-for="item in value">
-                {{ item }}
-            </li>
-        </ul> -->
-        <!-- <div>{{ xlxs_data }}</div> -->
     </div>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <!-- element引入组件库 -->
