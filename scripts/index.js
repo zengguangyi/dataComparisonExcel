@@ -35,7 +35,7 @@ let app = new Vue({
         file_lists: null,
         //导入的数据
         xlxs_data: {},
-        //标签数组
+        //标签数组 暂时没用
         tabs: [],
         //激活的tab标签
         activeTab: 'tab_two'
@@ -45,6 +45,7 @@ let app = new Vue({
             switch (key) {
                 case 'excel_in':
                     console.log(key);
+                    document.querySelector('#file_yi').click();
                     break;
                 case 'excel_out':
                     console.log(key);
@@ -58,7 +59,7 @@ let app = new Vue({
          * 文件上传 解析 赋值
          */
         fileInput: function(e) {
-            
+            console.log(e);
             //存储文件列表
             this.file_lists = e.target.files;
             console.log(this.file_lists[0]);
@@ -92,27 +93,27 @@ let app = new Vue({
             reader.readAsBinaryString(file);
         },
         /**
-        * tab标签点击事件
-        */
+         * tab标签点击事件
+         */
         tabsClick: function(tab, event) {
             console.log(tab.index, event);
         },
         /**
-        * 清理空数据
-        */
-        clearRows: function(obj){
-        	//遍历key
-        	for(key in obj){
-        		//遍历value内的数组，对象数组唯一标识'车牌号码'为空则清除该列数组元素
-        		for(let i=0;i<obj[key].length;i++){
-        			if(obj[key][i] === "" || typeof obj[key][i]['车牌号码'] === 'undefined'){
-        				//删除特定索引的值
-        				obj[key].splice(i,1);
-        				i = i - 1;
-        			}
-        		}
-        	}
-        	return obj;
+         * 清理空数据
+         */
+        clearRows: function(obj) {
+            //遍历key
+            for (key in obj) {
+                //遍历value内的数组，对象数组唯一标识'车牌号码'为空则清除该列数组元素
+                for (let i = 0; i < obj[key].length; i++) {
+                    if (obj[key][i] === "" || typeof obj[key][i]['车牌号码'] === 'undefined') {
+                        //删除特定索引的值
+                        obj[key].splice(i, 1);
+                        i = i - 1;
+                    }
+                }
+            }
+            return obj;
         }
     }
 });
