@@ -11,12 +11,28 @@ let app = new Vue({
         //激活的tab标签
         activeTab: 'tab_two',
         //当月时间
-        now_time: ''
+        now_time: '',
+        //当月转保保费
+        premium_off: null,
+        //当月起保保费
+        premium_on: null,
+        //月保费目标 初始100万
+        premium_target: 1000000,
+        //月进度
+        // premium_progress: null,
+        //存量保费
+        premium_stock: null,
     },
     mounted: function() {
         //初始化时间
         let now = new Date();
         this.now_time = now;
+    },
+    computed: {
+        //月进度
+        premium_progress: function() {
+            return parseFloat(this.premium_on / this.premium_target).toFixed(4);
+        }
     },
     methods: {
         handleSelect: function(key, keyPath) {
@@ -28,6 +44,10 @@ let app = new Vue({
                 case 'excel_out':
                     console.log(key);
                     break;
+                case 'download_xls':
+                    console.log(key);
+                    break;
+
                 default:
                     console.log(key);
                     break;
@@ -39,7 +59,6 @@ let app = new Vue({
         fileInput: function(e) {
             //存储文件列表
             this.file_lists = e.target.files;
-            // console.log(this.file_lists[0]);
             let file = this.file_lists[0];
 
             let that = this;
@@ -59,11 +78,12 @@ let app = new Vue({
                     //将excel的sheetName存储于tabs数组
                     that.tabs.push(sheetName);
                 });
-                // console.log(obj_data);
                 //clearRows清理空row
                 that.xlxs_data = that.clearRows(obj_data);
                 // 运算 添加筛选后表单
-                that.operate(that.xlxs_data)
+                that.operate(that.xlxs_data);
+                //数据汇总
+                that.premiumSummary(that.xlxs_data);
             }
             reader.readAsBinaryString(file);
         },
@@ -133,9 +153,8 @@ let app = new Vue({
                 let start_date = new Date(Date.parse(ele['起保日期']));
                 let start_year = start_date.getFullYear();
                 let start_month = start_date.getMonth() + 1;
-                
+
                 if (start_year === now_year && start_month === now_month) {
-                	console.log(start_year, start_month);
                     return true;
                 }
             });
@@ -158,9 +177,7 @@ let app = new Vue({
                 let start_date = new Date(Date.parse(ele['起保日期']));
                 let start_year = start_date.getFullYear();
                 let start_month = start_date.getMonth() + 1;
-                
                 if (start_year !== now_year || start_month !== now_month) {
-                	console.log(start_year, start_month);
                     return true;
                 }
             });
@@ -169,6 +186,44 @@ let app = new Vue({
             // if(this.tabs.indexOf('非当月起保台账') == -1){}
             this.tabs.push('非当月起保台账');
             this.xlxs_data['非当月起保台账'] = not_same_month_arr;
+        },
+        premiumSummary(obj) {
+            //当月转保单保费
+            let arr_a = [];
+            for (val of obj['非当月起保台账']) {
+                arr_a.push(parseFloat(val['纯保费']));
+            }
+            this.premium_off = arr_a.reduce(function(x, y) {
+                return x + y;
+            });
+            arr_a = [];
+
+            //当月起保保费
+            for (val of obj['当月起保台账']) {
+                arr_a.push(parseFloat(val['纯保费']));
+            }
+            this.premium_on = arr_a.reduce(function(x, y) {
+                return x + y;
+            });
+            arr_a = [];
+
+            //存量保费
+            for (val of obj['未续台账']) {
+                arr_a.push(parseFloat(val['保费']));
+            }
+            this.premium_stock = arr_a.reduce(function(x, y) {
+                return x + y;
+            });
+            arr_a = [];
+
+            //更新数据
+            this.xlxs_data['汇总表'] = [{
+                '当月转保单保费': this.premium_off,
+                '当月起保保费': this.premium_on,
+                '月保费目标': this.premium_target,
+                '月进度': this.premium_progress,
+                '存量保费': this.premium_stock
+            }];
         },
         /**
          * 改变时间

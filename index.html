@@ -17,12 +17,12 @@
                 <input type="file" id="file_yi" v-on:change="fileInput" />
                 <el-submenu index="2">
                     <template slot="title">Excel模板</template>
-                    <el-menu-item index="2-1">下载.xls</el-menu-item>
+                    <el-menu-item index="download_xls"><a href="./download/tempalte.xls" download="数据录入模板.xls" target="_blank">下载.xls</a></el-menu-item>
                     <el-menu-item index="2-2">帮助文档</el-menu-item>
                 </el-submenu>
                 <el-button class="excel_out" type="primary">导出</el-button>
                 <div class="now_time">
-                    <el-date-picker v-model="now_time" type="month" placeholder="当月时间" @change="timeChange">
+                    <el-date-picker v-model="now_time" type="month" disabled placeholder="当月时间" @change="timeChange">
                     </el-date-picker>
                 </div>
             </el-menu>
@@ -31,9 +31,9 @@
             <el-tabs type="card">
                 <el-tab-pane v-for="(value,key,index) in xlxs_data" :label="key" :name="key">
                     <el-table :data="value" style="width: 100%" empty-text="nothing" highlight-current-row>
-                        <el-table-column prop="序号" label="序号" width="180">
+                        <el-table-column v-if="index !== 5" prop="序号" label="序号" width="180">
                         </el-table-column>
-                        <el-table-column prop="车牌号码" label="车牌号码" width="180">
+                        <el-table-column v-if="index !== 5" prop="车牌号码" label="车牌号码" width="180">
                         </el-table-column>
                         <el-table-column v-if="index == 0 || index == 3 || index == 4" prop="签单日期" label="签单日期">
                         </el-table-column>
@@ -41,7 +41,7 @@
                         </el-table-column>
                         <el-table-column v-if="index == 1 || index == 2" prop="终保日期" label="终保日期">
                         </el-table-column>
-                        <el-table-column prop="经办人" label="经办人">
+                        <el-table-column v-if="index !== 5" prop="经办人" label="经办人">
                         </el-table-column>
                         <el-table-column v-if="index == 0 || index == 3 || index == 4" prop="纯保费" label="纯保费">
                         </el-table-column>
@@ -50,6 +50,16 @@
                         <el-table-column v-if="index == 2" prop="跟踪情况" label="跟踪情况">
                         </el-table-column>
                         <el-table-column v-if="index == 2" prop="脱保流向" label="脱保流向">
+                        </el-table-column>
+                        <el-table-column v-if="index == 5" prop="当月转保单保费" label="当月转保单保费">
+                        </el-table-column>
+                        <el-table-column v-if="index == 5" prop="当月起保保费" label="当月起保保费">
+                        </el-table-column>
+                        <el-table-column v-if="index == 5" prop="月保费目标" label="月保费目标">
+                        </el-table-column>
+                        <el-table-column v-if="index == 5" prop="月进度" label="月进度">
+                        </el-table-column>
+                        <el-table-column v-if="index == 5" prop="存量保费" label="存量保费">
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
