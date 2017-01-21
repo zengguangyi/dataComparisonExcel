@@ -21,6 +21,10 @@
                     <el-menu-item index="2-2">帮助文档</el-menu-item>
                 </el-submenu>
                 <el-button class="excel_out" type="primary">导出</el-button>
+                <div class="now_time">
+                    <el-date-picker v-model="now_time" type="month" placeholder="当月时间" @change="timeChange">
+                    </el-date-picker>
+                </div>
             </el-menu>
         </nav>
         <section class="tabs_yi">
@@ -31,17 +35,21 @@
                         </el-table-column>
                         <el-table-column prop="车牌号码" label="车牌号码" width="180">
                         </el-table-column>
-                        <el-table-column v-if="index == 0" prop="签单日期" label="签单日期">
+                        <el-table-column v-if="index == 0 || index == 3 || index == 4" prop="签单日期" label="签单日期">
                         </el-table-column>
-                        <el-table-column v-if="index == 0" prop="起保日期" label="起保日期">
+                        <el-table-column v-if="index == 0 || index == 3 || index == 4" prop="起保日期" label="起保日期">
                         </el-table-column>
-                        <el-table-column v-if="index == 1" prop="终保日期" label="终保日期">
+                        <el-table-column v-if="index == 1 || index == 2" prop="终保日期" label="终保日期">
                         </el-table-column>
                         <el-table-column prop="经办人" label="经办人">
                         </el-table-column>
-                        <el-table-column v-if="index == 0" prop="纯保费" label="纯保费">
+                        <el-table-column v-if="index == 0 || index == 3 || index == 4" prop="纯保费" label="纯保费">
                         </el-table-column>
-                        <el-table-column v-if="index == 1" prop="保费" label="保费">
+                        <el-table-column v-if="index == 1 || index == 2" prop="保费" label="保费">
+                        </el-table-column>
+                        <el-table-column v-if="index == 2" prop="跟踪情况" label="跟踪情况">
+                        </el-table-column>
+                        <el-table-column v-if="index == 2" prop="脱保流向" label="脱保流向">
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>

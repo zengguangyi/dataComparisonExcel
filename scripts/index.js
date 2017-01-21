@@ -1,32 +1,3 @@
-// ;
-// (function() {
-
-//     function fileInput() {
-//         let file_input = document.getElementById('file_input');
-
-//         file_input.addEventListener('change', function() {
-//             let file = file_input.files[0];
-
-//             let reader = new FileReader();
-//             reader.onload = function(e) {
-//                 let data = e.target.result;
-//                 let workbook = XLSX.read(data, { type: 'binary' });
-
-//                 workbook.SheetNames.forEach(function(sheetName) {
-//                     // Here is your object
-//                     let XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
-//                     let json_object = JSON.stringify(XL_row_object);
-//                     console.log(XL_row_object);
-
-//                 })
-//             }
-//             reader.readAsBinaryString(file);
-//         });
-//     }
-
-//     fileInput();
-// })()
-
 let app = new Vue({
     el: '#yi',
     data: {
@@ -35,10 +6,17 @@ let app = new Vue({
         file_lists: null,
         //导入的数据
         xlxs_data: {},
-        //标签数组 暂时没用
+        //标签数组(承保台账|到期保单台账|未续台账|当月起保台账|非当月起保台账)
         tabs: [],
         //激活的tab标签
-        activeTab: 'tab_two'
+        activeTab: 'tab_two',
+        //当月时间
+        now_time: ''
+    },
+    mounted: function() {
+        //初始化时间
+        let now = new Date();
+        this.now_time = now;
     },
     methods: {
         handleSelect: function(key, keyPath) {
@@ -59,10 +37,9 @@ let app = new Vue({
          * 文件上传 解析 赋值
          */
         fileInput: function(e) {
-            console.log(e);
             //存储文件列表
             this.file_lists = e.target.files;
-            console.log(this.file_lists[0]);
+            // console.log(this.file_lists[0]);
             let file = this.file_lists[0];
 
             let that = this;
@@ -82,21 +59,13 @@ let app = new Vue({
                     //将excel的sheetName存储于tabs数组
                     that.tabs.push(sheetName);
                 });
-                console.log(obj_data);
+                // console.log(obj_data);
                 //clearRows清理空row
                 that.xlxs_data = that.clearRows(obj_data);
-
-                // console.log(that.tabs);
-                // console.log(that.xlxs_data[that.tabs[0]]);
-
+                // 运算 添加筛选后表单
+                that.operate(that.xlxs_data)
             }
             reader.readAsBinaryString(file);
-        },
-        /**
-         * tab标签点击事件
-         */
-        tabsClick: function(tab, event) {
-            console.log(tab.index, event);
         },
         /**
          * 清理空数据
@@ -114,6 +83,101 @@ let app = new Vue({
                 }
             }
             return obj;
+        },
+        /**
+         * 运算流程
+         */
+        operate(obj) {
+            this.notRenew(obj);
+            this.theSameMonth(obj);
+            this.notSameMonth(obj);
+        },
+        /**
+         * 筛选 承保台账表0 和 到期保单台账表1 计算出 未续台账表2
+         * obj 表数据 Object
+         */
+        notRenew(obj) {
+            let sheet_arr = this.tabs;
+
+            //筛选出 到期保单台账表1 中与 承保台账表0 不同的数据
+            let not_renew_arr = obj[sheet_arr[1]].filter(function(ele) {
+                for (val of obj[sheet_arr[0]]) {
+                    if (ele['车牌号码'] == val['车牌号码']) return false;
+                }
+                return true;
+            });
+            //对 未续台账表 的序号重新排序
+            let arr_len = not_renew_arr.length;
+            for (let i = 0; i < arr_len; i++) {
+                not_renew_arr[i]['跟踪情况'] = '';
+                not_renew_arr[i]['脱保流向'] = '';
+
+                //附加高亮状态
+                not_renew_arr[i].heightLight = true;
+            }
+            //更新数据
+            this.tabs.push('未续台账');
+            this.xlxs_data['未续台账'] = not_renew_arr;
+        },
+        /**
+         * 筛选 承保台账表0 中当月起保的数据 计算出 当月起保台账表3
+         * obj 表数据 Object
+         */
+        theSameMonth(obj) {
+            let sheet_arr = this.tabs;
+            //当月时间now_year|now_month
+            let now_year = this.now_time.getFullYear();
+            let now_month = this.now_time.getMonth() + 1;
+            //筛选当月起保数据
+            let same_month_arr = obj[sheet_arr[0]].filter(function(ele) {
+                let start_date = new Date(Date.parse(ele['起保日期']));
+                let start_year = start_date.getFullYear();
+                let start_month = start_date.getMonth() + 1;
+                
+                if (start_year === now_year && start_month === now_month) {
+                	console.log(start_year, start_month);
+                    return true;
+                }
+            });
+
+            //更新数据
+            this.tabs.push('当月起保台账');
+            this.xlxs_data['当月起保台账'] = same_month_arr;
+        },
+        /**
+         * 筛选 承保台账表0 中非当月起保的数据 计算出 非当月起保台账表4
+         * obj 表数据 Object
+         */
+        notSameMonth(obj) {
+            let sheet_arr = this.tabs;
+            //当月时间now_year|now_month
+            let now_year = this.now_time.getFullYear();
+            let now_month = this.now_time.getMonth() + 1;
+            //筛选当月起保数据
+            let not_same_month_arr = obj[sheet_arr[0]].filter(function(ele) {
+                let start_date = new Date(Date.parse(ele['起保日期']));
+                let start_year = start_date.getFullYear();
+                let start_month = start_date.getMonth() + 1;
+                
+                if (start_year !== now_year || start_month !== now_month) {
+                	console.log(start_year, start_month);
+                    return true;
+                }
+            });
+
+            //更新数据
+            // if(this.tabs.indexOf('非当月起保台账') == -1){}
+            this.tabs.push('非当月起保台账');
+            this.xlxs_data['非当月起保台账'] = not_same_month_arr;
+        },
+        /**
+         * 改变时间
+         */
+        timeChange() {
+            console.log(this.now_time);
+            // let obj = this.xlxs_data;
+            // this.theSameMonth(obj);
+            // this.notSameMonth(obj);
         }
     }
 });
