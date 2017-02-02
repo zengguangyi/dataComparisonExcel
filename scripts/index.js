@@ -5,7 +5,7 @@ let app = new Vue({
         //上传的文件列表
         file_lists: null,
         //导入的数据
-        xlxs_data: {},
+        xlxs_data: null,
         //标签数组(承保台账|到期保单台账|未续台账|当月起保台账|非当月起保台账)
         tabs: [],
         //激活的tab标签
@@ -19,7 +19,7 @@ let app = new Vue({
         //月保费目标 初始100万
         premium_target: 1000000,
         //月进度
-        // premium_progress: null,
+        premium_progress: null,
         //存量保费
         premium_stock: null,
     },
@@ -28,28 +28,26 @@ let app = new Vue({
         let now = new Date();
         this.now_time = now;
     },
-    computed: {
-        //月进度
-        premium_progress: function() {
-            return parseFloat(this.premium_on / this.premium_target).toFixed(4);
+    watch: {
+        /**
+         * 监听 月目标值改变 重新渲染 汇总表
+         */
+        premium_target: function(val) {
+            if (this.xlxs_data) {
+                //清空['汇总表'] 重新渲染 数据汇总
+                this.xlxs_data['汇总表'] = null;
+                this.premiumSummary(this.xlxs_data);
+            }
         }
     },
     methods: {
         handleSelect: function(key, keyPath) {
             switch (key) {
                 case 'excel_in':
-                    console.log(key);
                     document.querySelector('#file_yi').click();
                     break;
-                case 'excel_out':
-                    console.log(key);
-                    break;
-                case 'download_xls':
-                    console.log(key);
-                    break;
-
                 default:
-                    console.log(key);
+                    console.log(key)
                     break;
             }
         },
@@ -86,6 +84,102 @@ let app = new Vue({
                 that.premiumSummary(that.xlxs_data);
             }
             reader.readAsBinaryString(file);
+        },
+        //导出xls
+        excelOut: function() {
+            if (this.xlxs_data == null) {
+                this.$alert('请先导入Excel数据，可从Excel模板中获取模板文件', '警告', {
+                    confirmButtonText: '确定'
+                });
+            } else {
+                //1.承保台账表
+                let _sh_1_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_1_data = this.xlxs_data['承保台账'];
+                let sh_1 = this.shOutputRef(_sh_1_headers, _sh_1_data);
+
+                //2.到期保单台账表
+                let _sh_2_headers = ['序号', '车牌号码', '终保日期', '经办人', '保费'];
+                let _sh_2_data = this.xlxs_data['到期保单台账'];
+                let sh_2 = this.shOutputRef(_sh_2_headers, _sh_2_data);
+
+                //3.未续台账表
+                let _sh_3_headers = ['序号', '车牌号码', '终保日期', '经办人', '保费', '跟踪情况', '脱保流向'];
+                let _sh_3_data = this.xlxs_data['未续台账'];
+                let sh_3 = this.shOutputRef(_sh_3_headers, _sh_3_data);
+
+                //4.当月起保台账表
+                let _sh_4_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_4_data = this.xlxs_data['当月起保台账'];
+                let sh_4 = this.shOutputRef(_sh_4_headers, _sh_4_data);
+
+                //5.非当月起保台账表
+                let _sh_5_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_5_data = this.xlxs_data['非当月起保台账'];
+                let sh_5 = this.shOutputRef(_sh_5_headers, _sh_5_data);
+
+                //6.汇总表
+                let _sh_6_headers = ['当月转保单保费', '当月起保保费', '月保费目标', '月进度', '存量保费'];
+                let _sh_6_data = this.xlxs_data['汇总表'];
+                let sh_6 = this.shOutputRef(_sh_6_headers, _sh_6_data);
+
+                // 构建 workbook 对象
+                var wb = {
+                    SheetNames: ['承保台账', '到期保单台账', '未续台账', '当月起保台账', '非当月起保台账', '汇总表'],
+                    Sheets: {
+                        '承保台账': Object.assign({}, sh_1.output, { '!ref': sh_1.ref }),
+                        '到期保单台账': Object.assign({}, sh_2.output, { '!ref': sh_2.ref }),
+                        '未续台账': Object.assign({}, sh_3.output, { '!ref': sh_3.ref }),
+                        '当月起保台账': Object.assign({}, sh_4.output, { '!ref': sh_4.ref }),
+                        '非当月起保台账': Object.assign({}, sh_5.output, { '!ref': sh_5.ref }),
+                        '汇总表': Object.assign({}, sh_6.output, { '!ref': sh_6.ref })
+                    }
+                };
+                var wopts = { bookType: 'xlsx', bookSST: false, type: 'binary' };
+                var wbout = XLSX.write(wb, wopts);
+
+                const now = new Date();
+                const outName = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}-${now.getHours()}${now.getMinutes()}.xlsx`;
+                /* the saveAs call downloads a file on the local machine */
+                saveAs(new Blob([this.s2ab(wbout)], { type: "" }), outName);
+            }
+
+        },
+        shOutputRef: function(_headers, _data) {
+            let headers = this.headerToWorksheet(_headers);
+            let data = this.dataToWorksheet(_data, _headers);
+            // 合并 headers 和 data
+            let output = Object.assign({}, headers, data);
+            // 获取所有单元格的位置
+            let outputPos = Object.keys(output);
+            // 计算出范围
+            let ref = outputPos[0] + ':' + outputPos[outputPos.length - 1];
+            return { 'output': output, 'ref': ref };
+        },
+        headerToWorksheet: function(arr) {
+        	// 为 _headers 添加对应的单元格位置
+        	// 转换成 worksheet 需要的结构
+            return arr
+                .map((v, i) => Object.assign({}, { v: v, position: String.fromCharCode(65 + i) + 1 }))
+                .reduce((prev, next) => Object.assign({}, prev, {
+                    [next.position]: { v: next.v }
+                }), {});
+        },
+        dataToWorksheet: function(arr, _headers) {
+        	// 匹配 headers 的位置，生成对应的单元格数据
+        	// 对刚才的结果进行降维处理（二维数组变成一维数组）
+        	// 转换成 worksheet 需要的结构
+            return arr
+                .map((v, i) => _headers.map((k, j) => Object.assign({}, { v: v[k], position: String.fromCharCode(65 + j) + (i + 2) })))
+                .reduce((prev, next) => prev.concat(next))
+                .reduce((prev, next) => Object.assign({}, prev, {
+                    [next.position]: { v: next.v }
+                }), {});
+        },
+        s2ab: function(s) {
+            var buf = new ArrayBuffer(s.length);
+            var view = new Uint8Array(buf);
+            for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
         },
         /**
          * 清理空数据
@@ -207,6 +301,9 @@ let app = new Vue({
             });
             arr_a = [];
 
+            //月进度
+            this.premium_progress = parseFloat(this.premium_on / this.premium_target).toFixed(4)
+
             //存量保费
             for (val of obj['未续台账']) {
                 arr_a.push(parseFloat(val['保费']));
@@ -229,7 +326,7 @@ let app = new Vue({
          * 改变时间
          */
         timeChange() {
-            console.log(this.now_time);
+            // console.log(this.now_time);
             // let obj = this.xlxs_data;
             // this.theSameMonth(obj);
             // this.notSameMonth(obj);

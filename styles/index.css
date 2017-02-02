@@ -1,8 +1,11 @@
-.now_time,.excel_out {
+.now-time,.excel-out,.month-target {
     margin-top: 12px;
     float: right;
     margin-right: 20px;
 }
 #file_yi{
 	display: none;
+}
+.month-target{
+	width: 120px;
 }

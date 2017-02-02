@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>业务数据比对</title>
     <!-- element引入样式 -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-default/index.css">
+    <link rel="stylesheet" href="styles/element-ui-index.css">
     <link rel="stylesheet" href="styles/index.css">
 </head>
 
@@ -18,12 +18,19 @@
                 <el-submenu index="2">
                     <template slot="title">Excel模板</template>
                     <el-menu-item index="download_xls"><a href="./download/tempalte.xls" download="数据录入模板.xls" target="_blank">下载.xls</a></el-menu-item>
-                    <el-menu-item index="2-2">帮助文档</el-menu-item>
+                    <el-tooltip class="tips-item" effect="dark" content="暂未开放" placement="left-end">
+                        <el-menu-item index="2-2">帮助文档</el-menu-item>
+                    </el-tooltip>
                 </el-submenu>
-                <el-button class="excel_out" type="primary">导出</el-button>
-                <div class="now_time">
-                    <el-date-picker v-model="now_time" type="month" disabled placeholder="当月时间" @change="timeChange">
-                    </el-date-picker>
+                <el-button class="excel-out" type="primary" @click="excelOut">导出</el-button>
+                <div class="now-time">
+                    <el-tooltip class="tips-item" effect="dark" content="暂未开放修改" placement="bottom">
+                        <el-date-picker v-model="now_time" type="month" disabled placeholder="当月时间" @change="timeChange">
+                        </el-date-picker>
+                    </el-tooltip>
+                </div>
+                <div class="month-target">
+                    <el-input v-model="premium_target" placeholder="月保费目标(元)"></el-input>
                 </div>
             </el-menu>
         </nav>
@@ -66,10 +73,10 @@
             </el-tabs>
         </section>
     </div>
-    <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <!-- element引入组件库 -->
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.1/xlsx.core.min.js"></script>
+    <script src="scripts/vue.2.1.10.min.js"></script>
+    <script src="scripts/element-ui-index.js"></script>
+    <script type="text/javascript" src="scripts/xlsx.core.0.8.1.min.js"></script>
+    <script type="text/javascript" src="scripts/FileSaver.js"></script>
     <script type="text/javascript" src="scripts/index.js"></script>
 </body>
 
