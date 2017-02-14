@@ -93,27 +93,27 @@ let app = new Vue({
                 });
             } else {
                 //1.承保台账表
-                let _sh_1_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_1_headers = ['序号', '车牌号码', '被保险人', '签单日期', '起保日期', '经办人', '纯保费'];
                 let _sh_1_data = this.xlxs_data['承保台账'];
                 let sh_1 = this.shOutputRef(_sh_1_headers, _sh_1_data);
 
                 //2.到期保单台账表
-                let _sh_2_headers = ['序号', '车牌号码', '终保日期', '经办人', '保费'];
+                let _sh_2_headers = ['序号', '车牌号码', '被保险人', '终保日期', '经办人', '保费'];
                 let _sh_2_data = this.xlxs_data['到期保单台账'];
                 let sh_2 = this.shOutputRef(_sh_2_headers, _sh_2_data);
 
                 //3.未续台账表
-                let _sh_3_headers = ['序号', '车牌号码', '终保日期', '经办人', '保费', '跟踪情况', '脱保流向'];
+                let _sh_3_headers = ['序号', '车牌号码', '被保险人', '终保日期', '经办人', '保费', '跟踪情况', '脱保流向'];
                 let _sh_3_data = this.xlxs_data['未续台账'];
                 let sh_3 = this.shOutputRef(_sh_3_headers, _sh_3_data);
 
                 //4.当月起保台账表
-                let _sh_4_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_4_headers = ['序号', '车牌号码', '被保险人', '签单日期', '起保日期', '经办人', '纯保费'];
                 let _sh_4_data = this.xlxs_data['当月起保台账'];
                 let sh_4 = this.shOutputRef(_sh_4_headers, _sh_4_data);
 
                 //5.非当月起保台账表
-                let _sh_5_headers = ['序号', '车牌号码', '签单日期', '起保日期', '经办人', '纯保费'];
+                let _sh_5_headers = ['序号', '车牌号码', '被保险人', '签单日期', '起保日期', '经办人', '纯保费'];
                 let _sh_5_data = this.xlxs_data['非当月起保台账'];
                 let sh_5 = this.shOutputRef(_sh_5_headers, _sh_5_data);
 
